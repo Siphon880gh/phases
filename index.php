@@ -20,7 +20,10 @@
     window.app = {
         init: function() {
             // If URL or localStorage has saved data, then load
-            app.persist.load.any();
+            let loaded = app.persist.load.any();
+            
+            // Otherwise add a blank phase
+            if(!loaded) $(".add").click();
 
         }, // init
         persist: {
@@ -31,9 +34,13 @@
                     var urlData = search.get("data");
                     if(urlData) {
                         app.renderAll(urlData);
+                        return true;
                     } else if(localStorage.getItem("phases__data")) {
                         var localStorageData = localStorage.getItem("phases__data");
                         app.renderAll(localStorageData);
+                        return true;
+                    } else {
+                        return false;
                     }
                 }
             },
@@ -49,13 +56,30 @@
                 });
 
                 history.pushState({}, "", "?data=" + JSON.stringify(data));
-                localStorage.setItem("data", data);
+                localStorage.setItem("phases__data", JSON.stringify(data));
             },
         },
         renderAll: function(data) {
-            console.log(data);
-            
-        }
+            // Assure data is object
+            if(typeof data==="string") data = JSON.parse(data);
+
+            let $phasesWrapper = $(".phases-wrapper"),
+                $template = $(".template-msgs-wrapper");
+
+            for(let i=0; i<data.length; i++) {
+                let {title, msgs} = data[i];
+
+                // Decode
+                msgs = msgs.replaceAll("__newline__", "\n");
+
+                let html = $template.html(),
+                    $dom = $(html);
+
+                $dom.find(".msgs-title").text(title);
+                $dom.find(".msgs").val(msgs)    
+                $phasesWrapper.append($dom);
+            } // for
+        } // renderAll
     } // app
 
     $(function() {
@@ -96,7 +120,6 @@
                     shuffledMsgs_str = shuffledMsgs.join("\n");
 
                 $msgs.val(shuffledMsgs_str);
-                app.persist.save();
             })
         });
 
