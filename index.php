@@ -17,6 +17,10 @@
     
     <!-- App -->
     <script>
+    // Constants
+    window.defaultSeconds = 10;
+
+    // App
     window.app = {
         init: function() {
             // If URL or localStorage has saved data, then load
@@ -87,6 +91,37 @@
         app.init();
 
         // Event handler on demand
+        $(".player").livequery( (i, el)=>{
+            $(el).on("click", function(ev) {
+                let $player = $(ev.target),
+                    willPause = $player.hasClass("fa-play");
+                if(willPause) { // playing
+                    $player.removeClass("fa-play").addClass("fa-pause");
+
+                    // Assure secs useable
+                    let $msgsWrapper = $player.closest(".msgs-wrapper"),
+                        msgs_str = $msgsWrapper.find(".msgs").val(),
+                        msgs = msgs_str.split("\n"),
+                        secs = parseInt($msgsWrapper.find(".seconds").val());
+
+                    if(isNaN(secs)) secs = window.defaultSeconds;
+
+                    for(let i = 0; i < msgs.length; i++) {
+                        window.running = setTimeout(function() {
+                            console.log(msgs[i]);
+                            if(i===msgs.length-1) {
+                                $player.addClass("fa-play").removeClass("fa-pause");
+                            }
+                        }, i*secs*1000);
+                    }
+                } else { // pausing
+                    $player.addClass("fa-play").removeClass("fa-pause");
+                }
+
+
+            })
+        });
+
         $(".msgs-title").livequery( (i, el)=>{
             $(el).on("input", function(ev) {
                 app.persist.save();
@@ -167,8 +202,21 @@
         width: var(--textarea-width);
         margin: 0 auto;
     }
-    .msgs-title, button {
+    .msgs-title, button, .fa-play {
         cursor: pointer;
+    }
+    .player {
+        top: 5px;
+        right: 10px;
+    }
+    .player, .player:visited {
+        color: black;
+    }
+    .player:hover {
+        color: darkgray;
+    }
+    .seconds {
+        width: 50px;
     }
     </style>
     
@@ -198,12 +246,14 @@
             <main class="phases-wrapper row">
             </main>
             <template class="template-msgs-wrapper">
-                <section class="msgs-wrapper col-md-2 gx-4 border">
+                <section class="msgs-wrapper col-md-2 gx-4 border position-relative">
+                    <div class="player fa fa-play position-absolute"></div>
                     <div class="msgs-title" contenteditable></div>
                     <textarea class="msgs"></textarea>
                     <nav class="msgs-buttons mt-1">
                         <button class="shuffle"><i class="fa fa-random"></i></button>
                         <button class="delete"><i class="fa fa-trash"></i></button>
+                        <input class="seconds" type="number" min="0" max="9999" placeholder="0 secs" value="10"/>
                     </nav>
                 </section>
             </template>
