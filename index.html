@@ -1,6 +1,8 @@
-<!DOCTYPE html><html lang="en">
-  <head>
-   <title>Phases</title>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Phases</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,253 +16,272 @@
 
     <!-- Livequery -->
     <script src="//raw.githack.com/hazzik/livequery/master/src/jquery.livequery.js"></script>
-    
+
     <!-- App -->
     <script>
-    // Constants
-    window.defaultSeconds = 10;
+        // Constants
+        window.defaultSeconds = 10;
 
-    // App
-    window.app = {
-        init: function() {
-            // If URL or localStorage has saved data, then load
-            let loaded = app.persist.load.any();
-            
-            // Otherwise add a blank phase
-            if(!loaded) $(".add").click();
+        // App
+        window.app = {
+                init: function() {
+                    // If URL or localStorage has saved data, then load
+                    let loaded = app.persist.load.any();
 
-        }, // init
-        persist: {
-            load: {
-                any: function() {
-                    // URL vs localStorage loading
-                    var search = new URLSearchParams(window.location.search);
-                    var urlData = search.get("data");
-                    if(urlData) {
-                        app.renderAll(urlData);
-                        return true;
-                    } else if(localStorage.getItem("phases__data")) {
-                        var localStorageData = localStorage.getItem("phases__data");
-                        app.renderAll(localStorageData);
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            },
-            save: function() {
-                let data = [];
-                $(".msgs-wrapper").each((i, msgWrapper)=>{
-                    let $msgWrapper = $(msgWrapper);
-                    let datum = {
-                        title: $msgWrapper.find(".msgs-title").html(),
-                        msgs: $msgWrapper.find(".msgs").val().replaceAll("\n", "__newline__")
-                    }
-                    data.push(datum);
-                });
+                    // Otherwise add a blank phase
+                    if (!loaded) $(".add").click();
 
-                history.pushState({}, "", "?data=" + JSON.stringify(data));
-                localStorage.setItem("phases__data", JSON.stringify(data));
-            },
-        },
-        renderAll: function(data) {
-            // Assure data is object
-            if(typeof data==="string") data = JSON.parse(data);
-
-            let $phasesWrapper = $(".phases-wrapper"),
-                $template = $(".template-msgs-wrapper");
-
-            for(let i=0; i<data.length; i++) {
-                let {title, msgs} = data[i];
-
-                // Decode
-                msgs = msgs.replaceAll("__newline__", "\n");
-
-                let html = $template.html(),
-                    $dom = $(html);
-
-                $dom.find(".msgs-title").text(title);
-                $dom.find(".msgs").val(msgs)    
-                $phasesWrapper.append($dom);
-            } // for
-        } // renderAll
-    } // app
-
-    $(function() {
-        // Start app
-        app.init();
-
-        // Event handler on demand
-        $(".player").livequery( (i, el)=>{
-            $(el).on("click", function(ev) {
-                let $player = $(ev.target),
-                    willPause = $player.hasClass("fa-play");
-                if(willPause) { // playing
-                    $player.removeClass("fa-play").addClass("fa-pause");
-
-                    // Assure secs useable
-                    let $msgsWrapper = $player.closest(".msgs-wrapper"),
-                        msgs_str = $msgsWrapper.find(".msgs").val(),
-                        msgs = msgs_str.split("\n"),
-                        secs = parseInt($msgsWrapper.find(".seconds").val());
-
-                    if(isNaN(secs)) secs = window.defaultSeconds;
-
-                    for(let i = 0; i < msgs.length; i++) {
-                        window.running = setTimeout(function() {
-                            console.log(msgs[i]);
-                            if(i===msgs.length-1) {
-                                $player.addClass("fa-play").removeClass("fa-pause");
+                }, // init
+                persist: {
+                    load: {
+                        any: function() {
+                            // URL vs localStorage loading
+                            var search = new URLSearchParams(window.location.search);
+                            var urlData = search.get("data");
+                            if (urlData) {
+                                app.renderAll(urlData);
+                                return true;
+                            } else if (localStorage.getItem("phases__data")) {
+                                var localStorageData = localStorage.getItem("phases__data");
+                                app.renderAll(localStorageData);
+                                return true;
+                            } else {
+                                return false;
                             }
-                        }, i*secs*1000);
+                        }
+                    },
+                    save: function() {
+                        let data = [];
+                        $(".msgs-wrapper").each((i, msgWrapper) => {
+                            let $msgWrapper = $(msgWrapper);
+                            let datum = {
+                                title: $msgWrapper.find(".msgs-title").html(),
+                                msgs: $msgWrapper.find(".msgs").val().replaceAll("\n", "__newline__")
+                            }
+                            data.push(datum);
+                        });
+
+                        history.pushState({}, "", "?data=" + JSON.stringify(data));
+                        localStorage.setItem("phases__data", JSON.stringify(data));
+                    },
+                },
+                renderAll: function(data) {
+                        // Assure data is object
+                        if (typeof data === "string") data = JSON.parse(data);
+
+                        let $phasesWrapper = $(".phases-wrapper"),
+                            $template = $(".template-msgs-wrapper");
+
+                        for (let i = 0; i < data.length; i++) {
+                            let {
+                                title,
+                                msgs
+                            } = data[i];
+
+                            // Decode
+                            msgs = msgs.replaceAll("__newline__", "\n");
+
+                            let html = $template.html(),
+                                $dom = $(html);
+
+                            $dom.find(".msgs-title").text(title);
+                            $dom.find(".msgs").val(msgs)
+                            $phasesWrapper.append($dom);
+                        } // for
+                    } // renderAll
+            } // app
+
+        $(function() {
+            // Start app
+            app.init();
+
+            // Event handler on demand
+            $(".player").livequery((i, el) => {
+                $(el).on("click", function(ev) {
+                    let $player = $(ev.target),
+                        willPause = $player.hasClass("fa-play");
+                    clearTimeout(window.running);
+                    if (willPause) { // playing
+                        $player.removeClass("fa-play").addClass("fa-pause");
+
+                        // Assure secs useable
+                        let $msgsWrapper = $player.closest(".msgs-wrapper"),
+                            msgs_str = $msgsWrapper.find(".msgs").val(),
+                            msgs = msgs_str.split("\n"),
+                            secs = parseInt($msgsWrapper.find(".seconds").val());
+
+                        if (isNaN(secs)) secs = window.defaultSeconds;
+
+                        for (let i = 0; i < msgs.length; i++) {
+                            window.running = setTimeout(function() {
+                                console.log(msgs[i]);
+                                if (i === msgs.length - 1) {
+                                    $player.addClass("fa-play").removeClass("fa-pause");
+                                }
+                            }, i * secs * 1000);
+                        }
+                    } else { // pausing
+                        $player.addClass("fa-play").removeClass("fa-pause");
                     }
-                } else { // pausing
-                    $player.addClass("fa-play").removeClass("fa-pause");
-                }
 
 
-            })
+                })
+            });
+
+            $(".msgs-title").livequery((i, el) => {
+                $(el).on("input", function(ev) {
+                    app.persist.save();
+                })
+            });
+
+            $(".add").livequery((i, el) => {
+                $(el).on("click", function(ev) {
+                    let $phasesWrapper = $(".phases-wrapper"),
+                        $template = $(".template-msgs-wrapper");
+
+                    let html = $template.html().replaceAll("", "");
+                    $phasesWrapper.append(html);
+                })
+            });
+
+            $(".msgs").livequery((i, el) => {
+                $(el).on("keyup", function(ev) {
+                    app.persist.save();
+                })
+            });
+
+            $(".shuffle").livequery((i, el) => {
+                $(el).on("click", function(ev) {
+                    let $msgsWrapper = $(ev.target).closest(".msgs-wrapper"),
+                        $msgs = $msgsWrapper.find(".msgs");
+
+                    let msgs_str = $msgs.val(),
+                        msgs = msgs_str.split('\n'),
+                        shuffledMsgs = msgs.filter(msg => msg.length > 0).sort(() => .5 - Math.random()),
+                        shuffledMsgs_str = shuffledMsgs.join("\n");
+
+                    $msgs.val(shuffledMsgs_str);
+                })
+            });
+
+            $(".delete").livequery((i, el) => {
+                $(el).on("click", function(ev) {
+                    let $msgsWrapper = $(ev.target).closest(".msgs-wrapper");
+
+                    $msgsWrapper.remove();
+                    app.persist.save();
+                })
+            });
+
+            $(".seconds").livequery((i, el) => {
+                $(el).on("input", function(ev) {
+                    let $secs = $(ev.target),
+                        secs = $secs.val();
+
+                    // Assure valid secs
+                    if (isNaN(secs)) secs = window.defaultSeconds;
+                    let prevSecs = secs;
+                    secs = Math.abs(secs);
+                    if (secs === window.defaultSeconds || prevSecs < 0) $secs.val(secs);
+
+                    app.persist.save();
+                })
+            });
         });
-
-        $(".msgs-title").livequery( (i, el)=>{
-            $(el).on("input", function(ev) {
-                app.persist.save();
-            })
-        });
-
-        $(".add").livequery( (i, el)=>{
-            $(el).on("click", function(ev) {
-                let $phasesWrapper = $(".phases-wrapper"),
-                    $template = $(".template-msgs-wrapper");
-
-                let html = $template.html().replaceAll("","");
-                $phasesWrapper.append(html);
-            })
-        });
-
-        $(".msgs").livequery( (i, el)=>{
-            $(el).on("keyup", function(ev) {
-                app.persist.save();
-            })
-        });
-
-        $(".shuffle").livequery( (i, el)=>{
-            $(el).on("click", function(ev) {
-                let $msgsWrapper = $(ev.target).closest(".msgs-wrapper"),
-                    $msgs = $msgsWrapper.find(".msgs");
-
-                let msgs_str = $msgs.val(), 
-                    msgs = msgs_str.split('\n'),
-                    shuffledMsgs = msgs.filter(msg=>msg.length>0).sort( () => .5 - Math.random() ),
-                    shuffledMsgs_str = shuffledMsgs.join("\n");
-
-                $msgs.val(shuffledMsgs_str);
-            })
-        });
-
-        $(".delete").livequery( (i, el)=>{
-            $(el).on("click", function(ev) {
-                let $msgsWrapper = $(ev.target).closest(".msgs-wrapper");
-                
-                $msgsWrapper.remove();
-                app.persist.save();
-            })
-        });
-
-        $(".seconds").livequery( (i, el)=>{
-            $(el).on("input", function(ev) {
-                let $secs = $(ev.target),
-                    secs = $secs.val();
-
-                // Assure valid secs
-                if(isNaN(secs)) secs = window.defaultSeconds;
-                let prevSecs = secs;
-                secs = Math.abs(secs);
-                if(secs===window.defaultSeconds || prevSecs<0) $secs.val(secs);
-
-                app.persist.save();
-            })
-        });
-    }); 
     </script>
 
     <style>
-    :root {
-        --textarea-width: 150px;
-        --textarea-wrapper-width: 175px;
-    }
-    .msgs-wrapper {
-        width: var(--textarea-wrapper-width);
-        padding: 5px;
-        clear: both;
-    }
-    .msgs-wrapper:nth-child(odd) {
-        background-color: rgba(122,122,122,.2);
-    }
-    .msgs-title {
-        width: var(--textarea-width);
-        margin: 0 auto;
-    }
-    .msgs-title:empty::before {
-        content: "<Unnamed>";
-        color: gray;
-    }
-    textarea {
-        display: block;
-        resize: vertical;
-        min-height: 125px;
-        width: var(--textarea-width);
-        margin: 0 auto;
-    }
-    .msgs-buttons {
-        display: block;
-        width: var(--textarea-width);
-        margin: 0 auto;
-    }
-    .msgs-title, button, .fa-play {
-        cursor: pointer;
-    }
-    .player {
-        top: 5px;
-        right: 10px;
-    }
-    .player, .player:visited {
-        color: black;
-    }
-    .player:hover {
-        color: darkgray;
-    }
-    .seconds {
-        width: 50px;
-    }
+         :root {
+            --textarea-width: 150px;
+            --textarea-wrapper-width: 175px;
+        }
+        
+        .msgs-wrapper {
+            width: var(--textarea-wrapper-width);
+            padding: 5px;
+            clear: both;
+        }
+        
+        .msgs-wrapper:nth-child(odd) {
+            background-color: rgba(122, 122, 122, .2);
+        }
+        
+        .msgs-title {
+            width: var(--textarea-width);
+            margin: 0 auto;
+        }
+        
+        .msgs-title:empty::before {
+            content: "<Unnamed>";
+            color: gray;
+        }
+        
+        textarea {
+            display: block;
+            resize: vertical;
+            min-height: 125px;
+            width: var(--textarea-width);
+            margin: 0 auto;
+        }
+        
+        .msgs-buttons {
+            display: block;
+            width: var(--textarea-width);
+            margin: 0 auto;
+        }
+        
+        .msgs-title,
+        button,
+        .fa-play {
+            cursor: pointer;
+        }
+        
+        .player {
+            top: 5px;
+            right: 10px;
+        }
+        
+        .player,
+        .player:visited {
+            color: black;
+        }
+        
+        .player:hover {
+            color: darkgray;
+        }
+        
+        .seconds {
+            width: 50px;
+        }
     </style>
-    
-</head>
-    <body>
-        <div class="container">
-            <header>
-                <!-- Title, author, socials, description -->
-                <div class="row">
-                    <h1 class="site-title">Phases</h1>
-                    <div class="author-line">
-                        <b>By Weng Fei Fung</b>
-                        <a class="px-1" href="https://www.youtube.com/channel/UCg1O9uttSv3ZBzd1iep25Ig/" target="_blank"><i class="fab fa-youtube"></i></a>
-                        <a class="px-1" href="https://www.linkedin.com/in/weng-fung/" target="_blank"><i class="fab fa-linkedin"></i></a>
-                        <a class="px-1" href="https://github.com/Siphon880gh/" target="_blank"><i class="fab fa-github"></i></a>
-                    </div>
-                    <p class="site-desc mt-2">Great for spaced repetition studying, guided meditation, etc. Play different lines at time intervals. Choose a section aka phase to have their lines play. Save/loads instantly.</p>
-                </div>
 
-                <!-- Add -->
-                <nav class="site-buttons fs-6 row">
-                    <div class="col col-x mb-4">
-                        <button class="add"><i class="fa fa-plus-square"></i><span>&nbsp;Add</span></button>
-                    </div>
-                </nav>
-            </header>
-            <main class="phases-wrapper row">
-            </main>
-            <template class="template-msgs-wrapper">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <!-- Title, author, socials, description -->
+            <div class="row">
+                <h1 class="site-title">Phases</h1>
+                <div class="author-line">
+                    <b>By Weng Fei Fung</b>
+                    <a class="px-1" href="https://www.youtube.com/channel/UCg1O9uttSv3ZBzd1iep25Ig/" target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a class="px-1" href="https://www.linkedin.com/in/weng-fung/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a class="px-1" href="https://github.com/Siphon880gh/" target="_blank"><i class="fab fa-github"></i></a>
+                </div>
+                <p class="site-desc mt-2">Great for spaced repetition studying, guided meditation, etc. Play different lines at time intervals. Choose a section aka phase to have their lines play. Save/loads instantly.</p>
+            </div>
+
+            <!-- Add -->
+            <nav class="site-buttons fs-6 row">
+                <div class="col col-x mb-4">
+                    <button class="add"><i class="fa fa-plus-square"></i><span>&nbsp;Add</span></button>
+                </div>
+            </nav>
+        </header>
+        <main class="phases-wrapper row">
+        </main>
+        <template class="template-msgs-wrapper">
                 <section class="msgs-wrapper col-md-2 gx-4 border position-relative">
                     <div class="player fa fa-play position-absolute"></div>
                     <div class="msgs-title" contenteditable></div>
@@ -272,10 +293,12 @@
                     </nav>
                 </section>
             </template>
-        </div><!-- container -->
-        
+    </div>
+    <!-- container -->
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-   
-    </body>
+
+</body>
+
 </html>
