@@ -37,14 +37,24 @@
                     }
                 }
             },
-            save: function(data) {
+            save: function() {
+                let data = [];
+                $(".msgs-wrapper").each((i, msgWrapper)=>{
+                    let $msgWrapper = $(msgWrapper);
+                    let datum = {
+                        title: $msgWrapper.find(".msgs-title").html(),
+                        msgs: $msgWrapper.find(".msgs").val().replaceAll("\n", "__newline__")
+                    }
+                    data.push(datum);
+                });
+
                 history.pushState({}, "", "?data=" + JSON.stringify(data));
                 localStorage.setItem("data", data);
             },
         },
         renderAll: function(data) {
             console.log(data);
-            // TODO: ...
+            
         }
     } // app
 
