@@ -53,6 +53,16 @@
         app.init();
 
         // Event handler on demand
+        $(".add").livequery( (i, el)=>{
+            $(el).on("click", function(ev) {
+                let $phasesWrapper = $(".phases-wrapper"),
+                    $template = $(".template-msgs-wrapper");
+
+                let html = $template.html().replaceAll("","");
+                $phasesWrapper.append(html);
+            })
+        });
+
         $(".msgs").livequery( (i, el)=>{
             $(el).on("keyup", function(ev) {
                 app.persist.save();
@@ -86,8 +96,26 @@
     </script>
 
     <style>
+    :root {
+        --textarea-width: 150px;
+        --textarea-wrapper-width: 175px;
+    }
+    .msgs-wrapper {
+        width: var(--textarea-wrapper-width);
+        padding: 5px;
+        clear: both;
+    }
     textarea {
+        display: block;
         resize: vertical;
+        min-height: 125px;
+        width: var(--textarea-width);
+        margin: 0 auto;
+    }
+    .msgs-buttons {
+        display: block;
+        width: var(--textarea-width);
+        margin: 0 auto;
     }
     button {
         cursor: pointer;
@@ -117,15 +145,17 @@
                     </div>
                 </nav>
             </header>
-            <div class="row">
-                <div class="msgs-wrapper col-md-2 border">
+            <main class="phases-wrapper row">
+            </main>
+            <template class="template-msgs-wrapper">
+                <section class="msgs-wrapper col-md-2 gx-4 border">
                     <textarea class="msgs"></textarea>
-                    <nav class="msgs-buttons">
+                    <nav class="msgs-buttons mt-1">
                         <button class="shuffle"><i class="fa fa-random"></i></button>
                         <button class="delete"><i class="fa fa-trash"></i></button>
                     </nav>
-                </div>
-            </div>
+                </section>
+            </template>
         </div><!-- container -->
         
     <!-- Bootstrap JS -->
