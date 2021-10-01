@@ -53,6 +53,12 @@
         app.init();
 
         // Event handler on demand
+        $(".msgs-title").livequery( (i, el)=>{
+            $(el).on("input", function(ev) {
+                app.persist.save();
+            })
+        });
+
         $(".add").livequery( (i, el)=>{
             $(el).on("click", function(ev) {
                 let $phasesWrapper = $(".phases-wrapper"),
@@ -105,6 +111,14 @@
         padding: 5px;
         clear: both;
     }
+    .msgs-title {
+        width: var(--textarea-width);
+        margin: 0 auto;
+    }
+    .msgs-title:empty::before {
+        content: "<Unnamed>";
+        color: gray;
+    }
     textarea {
         display: block;
         resize: vertical;
@@ -117,7 +131,7 @@
         width: var(--textarea-width);
         margin: 0 auto;
     }
-    button {
+    .msgs-title, button {
         cursor: pointer;
     }
     </style>
@@ -149,6 +163,7 @@
             </main>
             <template class="template-msgs-wrapper">
                 <section class="msgs-wrapper col-md-2 gx-4 border">
+                    <div class="msgs-title" contenteditable></div>
                     <textarea class="msgs"></textarea>
                     <nav class="msgs-buttons mt-1">
                         <button class="shuffle"><i class="fa fa-random"></i></button>
