@@ -49,8 +49,10 @@
     } // app
 
     $(function() {
+        // Start app
         app.init();
 
+        // Event handler on demand
         $(".msgs").livequery( (i, el)=>{
             $(el).on("keyup", function(ev) {
                 app.persist.save();
@@ -68,7 +70,16 @@
                     shuffledMsgs_str = shuffledMsgs.join("\n");
 
                 $msgs.val(shuffledMsgs_str);
+                app.persist.save();
+            })
+        });
 
+        $(".delete").livequery( (i, el)=>{
+            $(el).on("click", function(ev) {
+                let $msgsWrapper = $(ev.target).closest(".msgs-wrapper");
+                
+                $msgsWrapper.remove();
+                app.persist.save();
             })
         });
     }); 
@@ -78,26 +89,40 @@
     textarea {
         resize: vertical;
     }
+    button {
+        cursor: pointer;
+    }
     </style>
     
 </head>
     <body>
         <div class="container">
-            <div class="row">
-                <h1 class="site-title">Phases</h1>
-                <div class="author-line">
-                    <b>By Weng Fei Fung</b>
-                    <a class="px-1" href="https://www.youtube.com/channel/UCg1O9uttSv3ZBzd1iep25Ig/" target="_blank"><i class="fab fa-youtube"></i></a>
-                    <a class="px-1" href="https://www.linkedin.com/in/weng-fung/" target="_blank"><i class="fab fa-linkedin"></i></a>
-                    <a class="px-1" href="https://github.com/Siphon880gh/" target="_blank"><i class="fab fa-github"></i></a>
+            <header>
+                <!-- Title, author, socials, description -->
+                <div class="row">
+                    <h1 class="site-title">Phases</h1>
+                    <div class="author-line">
+                        <b>By Weng Fei Fung</b>
+                        <a class="px-1" href="https://www.youtube.com/channel/UCg1O9uttSv3ZBzd1iep25Ig/" target="_blank"><i class="fab fa-youtube"></i></a>
+                        <a class="px-1" href="https://www.linkedin.com/in/weng-fung/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a class="px-1" href="https://github.com/Siphon880gh/" target="_blank"><i class="fab fa-github"></i></a>
+                    </div>
+                    <p class="site-desc mt-2">Great for spaced repetition studying, guided meditation, etc. Play different lines at time intervals. Choose a section aka phase to have their lines play. Save/loads instantly.</p>
                 </div>
-                <p class="site-desc mt-2">Great for spaced repetition studying, guided meditation, etc. Play different lines at time intervals. Choose a section aka phase to have their lines play. Save/loads instantly.</p>
-            </div>
+
+                <!-- Add -->
+                <nav class="site-buttons fs-6 row">
+                    <div class="col col-x mb-4">
+                        <button class="add"><i class="fa fa-plus-square"></i><span>&nbsp;Add</span></button>
+                    </div>
+                </nav>
+            </header>
             <div class="row">
                 <div class="msgs-wrapper col-md-2 border">
                     <textarea class="msgs"></textarea>
-                    <nav>
+                    <nav class="msgs-buttons">
                         <button class="shuffle"><i class="fa fa-random"></i></button>
+                        <button class="delete"><i class="fa fa-trash"></i></button>
                     </nav>
                 </div>
             </div>
