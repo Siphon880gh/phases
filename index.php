@@ -111,6 +111,9 @@
         padding: 5px;
         clear: both;
     }
+    .msgs-wrapper:nth-child(odd) {
+        background-color: rgba(122,122,122,.2);
+    }
     .msgs-title {
         width: var(--textarea-width);
         margin: 0 auto;
