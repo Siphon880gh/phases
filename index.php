@@ -166,6 +166,21 @@
                 app.persist.save();
             })
         });
+
+        $(".seconds").livequery( (i, el)=>{
+            $(el).on("input", function(ev) {
+                let $secs = $(ev.target),
+                    secs = $secs.val();
+
+                // Assure valid secs
+                if(isNaN(secs)) secs = window.defaultSeconds;
+                let prevSecs = secs;
+                secs = Math.abs(secs);
+                if(secs===window.defaultSeconds || prevSecs<0) $secs.val(secs);
+
+                app.persist.save();
+            })
+        });
     }); 
     </script>
 
