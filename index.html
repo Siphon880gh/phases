@@ -114,7 +114,14 @@
 
                         for (let i = 0; i < msgs.length; i++) {
                             window.running = setTimeout(function() {
-                                console.log(msgs[i]);
+                                let msg = msgs[i];
+
+                                // Time to speak
+                                let speaking = new SpeechSynthesisUtterance(msg);
+                                let voices = window.speechSynthesis.getVoices();
+                                speaking.voice = voices[0];
+                                window.speechSynthesis.speak(speaking);
+
                                 if (i === msgs.length - 1) {
                                     $player.addClass("fa-play").removeClass("fa-pause");
                                 }
@@ -239,6 +246,7 @@
         .player {
             top: 5px;
             right: 10px;
+            z-index: 1;
         }
         
         .player,
