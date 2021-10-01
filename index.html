@@ -216,10 +216,11 @@
         .msgs-title {
             width: var(--textarea-width);
             margin: 0 auto;
+            cursor: text;
         }
         
         .msgs-title:empty::before {
-            content: "<Unnamed>";
+            content: "<Phase>";
             color: gray;
         }
         
@@ -237,7 +238,6 @@
             margin: 0 auto;
         }
         
-        .msgs-title,
         button,
         .fa-play {
             cursor: pointer;
