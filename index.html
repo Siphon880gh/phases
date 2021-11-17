@@ -98,6 +98,7 @@
             // Event handler on demand
             $(".player").livequery((i, el) => {
                 $(el).on("click", function(ev) {
+                    window.speechSynthesis.cancel();
                     let $player = $(ev.target),
                         willPause = $player.hasClass("fa-play");
                     clearTimeout(window.running);
@@ -126,12 +127,13 @@
                                     // $player.addClass("fa-play").removeClass("fa-pause");
                                     setTimeout(() => {
                                         $player.click().click(); // To repeat
-                                    }, msg.split(" ").length * 1200);
+                                    }, (msg.split(" ").length * 1200) + (secs * 1000));
                                 }
                             }, i * secs * 1000);
                         }
                     } else { // pausing
                         $player.addClass("fa-play").removeClass("fa-pause");
+                        window.speechSynthesis.cancel();
                     }
 
 
